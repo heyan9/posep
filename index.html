@@ -126,6 +126,10 @@ button.or{background:var(--or);border-color:var(--or);color:#fff}
 .pcard button{background:var(--bg);border:1px solid var(--line);color:var(--fg)}
 .pcard button.pri{background:var(--blue);border-color:var(--blue);color:#fff}
 .pcard button.on{background:var(--soft);border-color:var(--blue);color:var(--blue)}
+#gal{columns:auto!important;display:flex;gap:10px;align-items:flex-start}
+.col{flex:1;min-width:0}.empty{flex:1}
+#mic.on{background:var(--soft);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(0,102,255,.2)}}
 </style>
 </head>
 <body>
@@ -133,6 +137,7 @@ button.or{background:var(--or);border-color:var(--or);color:#fff}
   <span class="logo"><i id="lgm"></i>何岩pose网</span>
   <div id="tabs"><button data-v="gal">图库</button><button data-v="pose">Pose 库</button></div>
   <button class="ib" id="th" title="白天/黑夜" aria-label="切换主题"><span>◐</span></button>
+  <button class="ib" id="mic" title="语音控制" aria-label="语音控制"><span>🎤</span></button>
   <button class="ib" id="st2" title="设置" aria-label="设置"><span>⚙</span></button>
   <button class="ib" id="up" title="上传图片" aria-label="上传图片"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
   <input type="file" id="fi" accept="image/*" multiple hidden>
@@ -161,7 +166,7 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>(
 const ls={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
 let cfg=JSON.parse(ls.get('cfg')||'{}');
 if(!cfg.owner&&location.hostname.endsWith('.github.io')){cfg.owner=location.hostname.split('.')[0];cfg.repo=location.pathname.split('/')[1]||location.hostname}
-const S={data:{cats:['常用半装','全装','特殊动作'],items:[]},sha:null,cat:'全部',v:'gal',sort:ls.get('sort')||'t'},local={},P={i:0,rand:false,on:false};
+const S={data:{cats:['常用半装','全装','特殊动作'],items:[]},sha:null,cat:'全部',v:'gal',sort:ls.get('sort')||'r'},local={},P={i:0,rand:false,on:false};
 const br=()=>cfg.branch||'main';
 
 /* theme */
@@ -179,7 +184,7 @@ const b64b=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.s
 async function put(p,c){const r=await gh(p,{method:'PUT',body:JSON.stringify({message:'add '+p,content:c,branch:br()})});if(!r.ok)throw new Error(p+' → '+r.status)}
 async function del(p){try{const g=await gh(`${p}?ref=${br()}`);if(!g.ok)return;const j=await g.json();await gh(p,{method:'DELETE',body:JSON.stringify({message:'delete '+p,sha:j.sha,branch:br()})})}catch{}}
 async function saveData(){
-  if(!cfg.token)return;
+  if(!cfg.token){toast('没填 GitHub Token，改动没有保存',3500);return}
   try{
     const body={message:'update data',content:b64s(JSON.stringify(S.data)),branch:br()};if(S.sha)body.sha=S.sha;
     let r=await gh('data.json',{method:'PUT',body:JSON.stringify(body)});
@@ -266,10 +271,15 @@ function render(){
   
   S.v=='gal'?renderGal():renderPose()
 }
+const ncol=()=>innerWidth>=1100?5:innerWidth>=700?4:2;
 function renderGal(){
-  const l=items();
-  $('#gal').innerHTML=l.length?l.map(i=>`<div class="card" data-id="${i.id}"><img loading="lazy" src="${U(i,'thumb')}" width="${i.w}" height="${i.h}" alt=""><span class="tag">${esc(i.cat)}</span>${i.r?`<span class="rt">★${i.r}</span>`:''}</div>`).join(''):'<div class="empty">这里还没有图片，点右上角 ↑ 上传。</div>'
+  const l=items(),n=S.nc=ncol();
+  if(!l.length){$('#gal').innerHTML='<div class="empty">这里还没有图片，点右上角 ↑ 上传。</div>';return}
+  const h=Array(n).fill(0),c=Array(n).fill('');
+  l.forEach(i=>{const k=h.indexOf(Math.min(...h));h[k]+=i.h/i.w+.08;c[k]+=`<div class="card" data-id="${i.id}"><img loading="lazy" src="${U(i,'thumb')}" width="${i.w}" height="${i.h}" alt=""><span class="tag">${esc(i.cat)}</span>${i.r?`<span class="rt">★${i.r}</span>`:''}</div>`});
+  $('#gal').innerHTML=c.map(x=>`<div class="col">${x}</div>`).join('')
 }
+addEventListener('resize',()=>{if(S.v=='gal'&&ncol()!=S.nc)renderGal()});
 const plist=()=>items().filter(i=>i.pose);
 function renderPose(){
   const l=plist();if(P.i>=l.length)P.i=0;const c=l[P.i];
@@ -291,26 +301,37 @@ $('#pose').onclick=e=>{
 };
 
 /* voice */
-function speak(){const c=plist()[P.i];if(!c)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(`第${P.i+1}条，${c.cat}。${c.pose}`);u.lang='zh-CN';speechSynthesis.speak(u)}
-function nav(d,back){const l=plist();if(!l.length)return;P.i=P.rand&&!back?Math.floor(Math.random()*l.length):(P.i+d+l.length)%l.length;renderPose();speak()}
+function say(t){
+  if(!('speechSynthesis' in window)){toast('这个浏览器不支持语音播报');return}
+  const vs=speechSynthesis.getVoices();if(vs.length&&!vs.some(x=>/zh/i.test(x.lang)))toast('设备里没有中文语音包',3000);
+  speechSynthesis.cancel();
+  setTimeout(()=>{const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';const z=speechSynthesis.getVoices().find(x=>/zh[-_]CN/i.test(x.lang));if(z)u.voice=z;speechSynthesis.resume();speechSynthesis.speak(u)},80)
+}
+function speak(){const l=plist(),c=l[P.i];if(!c){toast('还没有 pose：先点上方“识别未识别”，或在图片 ⓘ 里手写',4000);return}say(`第${P.i+1}条，${c.cat}。${c.pose}`)}
+function speakV(){const it=V.list[V.i];it&&it.pose?say(it.pose):toast('这张还没有 pose 描述')}
+function nav(d,back){const l=plist();if(!l.length){speak();return}P.i=P.rand&&!back?Math.floor(Math.random()*l.length):(P.i+d+l.length)%l.length;renderPose();speak()}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec;
+const sync=()=>{$('#mic').classList.toggle('on',P.on);renderPose()};
 function listen(on){
   if(on){
-    if(!SR){toast('当前浏览器不支持语音识别，建议用 Chrome',4000);return}
+    if(!SR){toast('当前浏览器不支持语音识别，请用 Chrome 或 Edge',4000);return}
     P.on=true;rec=new SR();rec.lang='zh-CN';rec.continuous=true;rec.interimResults=false;
-    rec.onresult=e=>{if(speechSynthesis.speaking)return;cmd(e.results[e.results.length-1][0].transcript)};
-    rec.onend=()=>{if(P.on)try{rec.start()}catch{}};
-    rec.onerror=e=>{if(e.error=='not-allowed'){P.on=false;toast('请允许麦克风权限',4000);renderPose()}};
-    try{rec.start()}catch{}
+    rec.onresult=e=>{const t=e.results[e.results.length-1][0].transcript;toast('听到：'+t,1500);cmd(t)};
+    rec.onend=()=>{if(P.on)setTimeout(()=>{try{rec.start()}catch{}},200)};
+    rec.onerror=e=>{if(e.error=='not-allowed'||e.error=='service-not-allowed'){P.on=false;toast('麦克风权限被拒绝，请在地址栏允许麦克风',5000);sync()}};
+    try{rec.start();toast('语音控制已开启，说“下一个”试试',2500)}catch{}
   }else{P.on=false;try{rec.stop()}catch{}}
-  renderPose()
+  sync()
 }
+function step(d){if(V.on){go(d);const it=V.list[V.i];if(it&&it.pose)say(it.pose)}else if(S.v=='pose')nav(d,d<0)}
 function cmd(t){
-  if(/下一|next/i.test(t))nav(1);else if(/上一/.test(t))nav(-1,1);
-  else if(/重复|再说|再来|播报/.test(t))speak();
-  else if(/随机/.test(t)){P.rand=true;nav(1)}
+  const nx=/下[一个张条首页]|下张|next/i.test(t),pv=/上[一个张条首页]|上张|前一|prev/i.test(t),d=pv&&!nx?-1:nx?1:0;
+  if(d)step(d);
+  else if(/重复|再说|再来|播报/.test(t))V.on?speakV():speak();
+  else if(/随机/.test(t)){P.rand=true;toast('随机播放已开')}
   else if(/停止|结束|关闭/.test(t)){speechSynthesis.cancel();listen(false)}
 }
+$('#mic').onclick=()=>listen(!P.on);
 
 /* viewer */
 const V={on:false,list:[],i:0,s:1,x:0,y:0},ptr=new Map(),vi=$('#vi'),st=$('#st');let pd=0,ps=1,sw=null,lt=0;
@@ -383,7 +404,7 @@ function manage(){
 }
 /* rating, sort, batch, animated figure */
 function stars(it){$('#vst').innerHTML=[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${(it.r||0)>=n?'on':''}" aria-label="${n} 星">★</button>`).join('')}
-$('#vst').onclick=e=>{const b=e.target.closest('button');if(!b)return;const it=V.list[V.i],n=+b.dataset.n;it.r=it.r==n?0:n;stars(it);save()};
+$('#vst').onclick=e=>{const b=e.target.closest('button');if(!b)return;const it=V.list[V.i],n=+b.dataset.n;it.r=it.r==n?0:n;stars(it);render();save().then(()=>{if(cfg.token)toast('评分已同步',1200)})};
 $('#vi2').onclick=()=>$('#vp').classList.toggle('show');
 $('#srt').onclick=()=>{S.sort=S.sort=='r'?'t':'r';ls.set('sort',S.sort);render()};
 $('#rb').onclick=recogAll;
