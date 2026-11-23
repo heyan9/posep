@@ -196,7 +196,8 @@ let q=Promise.resolve();const save=()=>q=q.then(saveData);
 async function load(){
   try{
     if(cfg.owner&&cfg.repo){
-      const r=await gh(`data.json?ref=${br()}`);
+      let r=await gh(`data.json?ref=${br()}`);
+      if(r.status==401&&cfg.token){toast('GitHub Token 无效或已过期，先以只读模式打开，请到 ⚙ 重新填写',7000);const t=cfg.token;cfg.token='';r=await gh(`data.json?ref=${br()}`);cfg.token=t}
       if(r.ok){const j=await r.json();S.sha=j.sha;S.data=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g,'')),c=>c.charCodeAt(0))))}
       else if(r.status!=404)toast('读取失败 '+r.status,4000)
     }else{const r=await fetch('data.json?t='+Date.now());if(r.ok)S.data=await r.json()}
@@ -205,7 +206,7 @@ async function load(){
 }
 async function usage(){
   const e=$('#usage');if(!cfg.owner||!cfg.repo){e.hidden=true;return}
-  try{const r=await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`,{headers:cfg.token?{Authorization:'Bearer '+cfg.token}:{}});if(!r.ok)throw 0;
+  try{let r=await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`,{headers:cfg.token?{Authorization:'Bearer '+cfg.token}:{}});if(r.status==401)r=await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`);if(!r.ok)throw 0;
     const mb=(await r.json()).size/1024;
     e.lastElementChild.textContent=`${S.data.items.length} 张图 · 仓库已用 ${mb<1024?mb.toFixed(1)+' MB':(mb/1024).toFixed(2)+' GB'} / 建议上限 1 GB`;
     e.querySelector('i').style.width=Math.max(1,Math.min(100,mb/10.24))+'%';e.hidden=false}catch{e.hidden=true}
@@ -419,18 +420,20 @@ function openSet(){
   <label>GitHub 用户名</label><input id="s1" value="${esc(cfg.owner||'')}" autocapitalize="off">
   <label>仓库名</label><input id="s2" value="${esc(cfg.repo||'')}" autocapitalize="off">
   <label>分支</label><input id="s3" value="${esc(cfg.branch||'main')}" autocapitalize="off">
-  <label>GitHub Token（Contents 读写权限，只保存在这台设备的浏览器里）</label><input id="s4" type="password" value="${esc(cfg.token||'')}">
-  <label>魔搭 ModelScope Token（用于自动识别 pose）</label><input id="s5" type="password" value="${esc(cfg.mkey||'')}">
+  <label>GitHub Token（Contents 读写权限，只保存在这台设备的浏览器里）</label><input id="s4" type="password" autocomplete="new-password" value="${esc(cfg.token||'')}">
+  <label>魔搭 ModelScope Token（用于自动识别 pose）</label><input id="s5" type="password" autocomplete="new-password" value="${esc(cfg.mkey||'')}">
   <label>识别模型</label><input id="s6" value="${esc(cfg.model||'Qwen/Qwen3-VL-235B-A22B-Instruct')}" autocapitalize="off">
   <label>豆包语音 APP ID（可选，用于播报）</label><input id="s7" value="${esc(cfg.did||'')}" autocapitalize="off">
-  <label>豆包语音 Access Token</label><input id="s8" type="password" value="${esc(cfg.dtok||'')}">
-  <label>豆包语音 API Key（有就填，优先使用）</label><input id="s9" type="password" value="${esc(cfg.dkey||'')}">
+  <label>豆包语音 Access Token</label><input id="s8" type="password" autocomplete="new-password" value="${esc(cfg.dtok||'')}">
+  <label>豆包语音 API Key（有就填，优先使用）</label><input id="s9" type="password" autocomplete="new-password" value="${esc(cfg.dkey||'')}">
   <label>音色</label><input id="s10" value="${esc(cfg.spk||'saturn_zh_female_cancan_tob')}" autocapitalize="off">
   <label>代理地址（可选，被跨域拦截时再填）</label><input id="s11" value="${esc(cfg.proxy||'')}" autocapitalize="off">
+  <button id="tg" style="width:100%;margin-top:12px">测试 GitHub 连接</button><p id="tr" class="hint"></p>
   <div class="row" style="margin-top:14px"><button data-a="ok">取消</button><button class="pri" id="sv">保存并刷新</button></div>`)
 }
 $('#mb').onclick=e=>{
   const t=e.target.closest('button');if(!t)return;
+  if(t.id=='tg'){testGH();return}
   if(t.id=='sv'){cfg={owner:$('#s1').value.trim(),repo:$('#s2').value.trim(),branch:$('#s3').value.trim()||'main',token:$('#s4').value.trim(),mkey:$('#s5').value.trim(),model:$('#s6').value.trim()||'Qwen/Qwen3-VL-235B-A22B-Instruct',did:$('#s7').value.trim(),dtok:$('#s8').value.trim(),dkey:$('#s9').value.trim(),spk:$('#s10').value.trim()||'saturn_zh_female_cancan_tob',proxy:$('#s11').value.trim()};ls.set('cfg',JSON.stringify(cfg));closeM();load();return}
   const a=t.dataset.a,i=+t.dataset.i;
   if(a=='ok')closeM();
@@ -438,6 +441,14 @@ $('#mb').onclick=e=>{
   else if(a=='del'){const o=S.data.cats[i];if(confirm(`删除分类“${o}”？里面的图片会移到“未分类”。`)){S.data.cats.splice(i,1);S.data.items.forEach(x=>{if(x.cat==o)x.cat='未分类'});if(S.cat==o)S.cat='全部';save();render();manage()}}
   else if(t.id=='ac'){const n=$('#nc').value.trim();if(n&&!S.data.cats.includes(n)){S.data.cats.push(n);save();render();manage()}}
 };
+async function testGH(){
+  const t=$('#s4').value.trim(),o=$('#s1').value.trim(),rp=$('#s2').value.trim(),out=$('#tr');out.textContent='测试中…';
+  try{
+    const r=await fetch(`https://api.github.com/repos/${o}/${rp}`,{headers:{Authorization:'Bearer '+t,Accept:'application/vnd.github+json'}});
+    const j=await r.json().catch(()=>({}));
+    out.textContent=r.ok?'连接正常'+(j.permissions?'，写入权限：'+(j.permissions.push?'有':'没有'):''):`失败 ${r.status}：${j.message||''}。Token ${t?`长度 ${t.length}，开头 ${t.slice(0,11)}`:'是空的'}`
+  }catch{out.textContent='网络错误，连不上 GitHub'}
+}
 function manage(){
   modal(`<h3>分类管理</h3>${S.data.cats.map((c,i)=>`<div class="mr"><span>${esc(c)}</span><button data-a="ren" data-i="${i}">改名</button><button data-a="del" data-i="${i}" class="dg">删除</button></div>`).join('')}
   <div class="row" style="margin-top:10px"><input id="nc" placeholder="新分类名"><button class="pri" id="ac">添加</button></div>
