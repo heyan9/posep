@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pose 图库</title>
+<title>何岩pose网</title>
 <style>
 :root{--bg:#fff;--bg2:#f6f6f6;--fg:#121212;--fg2:#646464;--line:#ebebeb;--blue:#0066ff;--soft:#e5f0ff;--dg:#d93025}
 :root[data-theme=dark]{--bg:#121212;--bg2:#1e1e1e;--fg:#e8e8e8;--fg2:#9a9a9a;--line:#2c2c2c;--blue:#4c94ff;--soft:#14284a;--dg:#ff6b60}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:300 15px/1.6 -apple-system,"PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei Light","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 14px}
 button.pri{background:var(--blue);border-color:var(--blue);color:#fff}
@@ -17,19 +17,24 @@ button.dg{color:var(--dg)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:env(safe-area-inset-top,0) 12px 0;display:flex;align-items:center;gap:10px;height:calc(52px + env(safe-area-inset-top,0px))}
-.logo{font-weight:700;color:var(--blue);font-size:18px;white-space:nowrap}
-#tabs{display:flex;gap:4px;flex:1}
-#tabs button{border:0;background:none;color:var(--fg2);font-weight:600;padding:6px 10px}
-#tabs button.on{color:var(--blue);background:var(--soft)}
+.logo{display:flex;align-items:center;gap:9px;font-weight:300;font-size:21px;letter-spacing:.06em;white-space:nowrap}
+.logo i{width:30px;height:30px;border-radius:9px;background:var(--blue);display:grid;place-items:center}
+.logo svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#tabs{display:flex;gap:2px;flex:1;margin-left:10px;align-self:stretch}
+#tabs button{border:0;border-radius:0;background:none;color:var(--fg2);padding:0 10px;border-bottom:2px solid transparent;margin-top:2px}
+#tabs button.on{color:var(--blue);background:none;border-bottom-color:var(--blue)}
 .ib{width:38px;height:38px;padding:0;border:0;background:none;display:grid;place-items:center;border-radius:50%;font-size:18px}
 .ib:hover{background:var(--bg2)}
 .ib svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#up{color:var(--blue)}
+#up{background:var(--blue);color:#fff}#up:hover{background:var(--blue)}
+#usage{display:flex;align-items:center;gap:10px;color:var(--fg2);font-size:12px;margin-bottom:10px}
+.ub{width:72px;height:3px;background:var(--line);border-radius:2px;overflow:hidden;flex:none}.ub i{display:block;height:100%;background:var(--blue)}
+@media(max-width:480px){.logo{font-size:17px;gap:6px}.logo i{width:26px;height:26px}#tabs{margin-left:2px}#tabs button{padding:0 7px}.ib{width:34px;height:34px}header{gap:4px;padding-left:10px;padding-right:8px}}
 main{max-width:1200px;margin:0 auto;padding:12px}
 #warn{background:var(--soft);color:var(--blue);border-radius:8px;padding:8px 12px;margin-bottom:10px}
 #chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
 .chip{white-space:nowrap;border-radius:16px;padding:3px 14px;background:var(--bg2);border:0}
-.chip.on{background:var(--soft);color:var(--blue);font-weight:600}
+.chip.on{background:var(--soft);color:var(--blue)}
 #gal{columns:2;column-gap:10px}
 @media(min-width:700px){#gal{columns:4}}
 @media(min-width:1100px){#gal{columns:5}}
@@ -40,7 +45,7 @@ main{max-width:1200px;margin:0 auto;padding:12px}
 .pcard{background:var(--bg2);border-radius:14px;padding:14px;text-align:center;margin-bottom:14px}
 .pcard>img{max-height:42vh;max-width:100%;border-radius:10px;cursor:zoom-in}
 .pn{color:var(--fg2);margin-top:6px}
-.pt{font-size:20px;line-height:1.6;margin:8px 0 12px;font-weight:600}
+.pt{font-size:20px;line-height:1.6;margin:8px 0 12px;font-weight:300}
 .pbtn{display:flex;gap:8px;justify-content:center;margin-top:8px}
 .pbtn button{flex:1;max-width:160px;padding:10px}
 .hint{color:var(--fg2);font-size:13px;margin:10px 0 0}
@@ -64,28 +69,86 @@ main{max-width:1200px;margin:0 auto;padding:12px}
 #mb h3{margin:0 0 10px}#mb label{display:block;font-size:13px;color:var(--fg2);margin:8px 0 3px}
 .mr{display:flex;gap:8px;align-items:center;margin-bottom:8px}.mr span{flex:1}
 #tt{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:20px;z-index:40;max-width:90vw;font-size:14px}
+
+:root{--or:#ff6a1a;--hero:#0066ff}
+:root[data-theme=dark]{--or:#ff8a3d;--hero:#0a4fd1}
+button:disabled{opacity:.5;cursor:default}
+button.or{background:var(--or);border-color:var(--or);color:#fff}
+.logo i{background:var(--hero)}
+.logo svg{width:22px;height:22px;stroke-width:3.4}
+#tabs button.on{border-bottom:3px solid var(--or)}
+#up{background:var(--or);color:#fff}#up:hover{background:var(--or)}
+.ib span{display:block;transition:transform .6s cubic-bezier(.3,1.6,.5,1)}
+#st2:hover span{transform:rotate(120deg)}#th.sp span{transform:rotate(180deg)}
+#up:hover svg{animation:bob .5s ease infinite alternate}
+@keyframes bob{to{transform:translateY(-3px)}}
+#hero{position:relative;overflow:hidden;background:var(--hero);color:#fff;border-radius:20px;padding:22px 24px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;min-height:150px}
+#hero::before{content:"";position:absolute;right:-40px;top:-50px;width:230px;height:230px;border-radius:50%;background:var(--or)}
+#hero::after{content:"";position:absolute;left:46%;bottom:-34px;width:72px;height:72px;border-radius:50%;border:9px solid rgba(255,255,255,.22)}
+.hl{position:relative;z-index:1}
+#hero h1{margin:0;font-weight:300;font-size:clamp(28px,7vw,44px);letter-spacing:.08em;line-height:1.2}
+#hero p{margin:6px 0 10px;opacity:.9}
+#hero #usage{color:rgba(255,255,255,.85);margin:0}
+#hero .ub{background:rgba(255,255,255,.3)}#hero .ub i{background:var(--or)}
+.fig{position:relative;z-index:1;width:130px;height:130px;flex:none}.fig svg{width:100%;height:100%;stroke-width:2.2}
+@media(max-width:480px){.fig{width:100px;height:100px}#hero{padding:18px}}
+#bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+#chips{flex:1 1 100%;padding-bottom:0}
+#ctl{display:flex;gap:8px;margin-left:auto}
+#ctl button{border-radius:16px;padding:3px 14px}
+@media(min-width:700px){#chips{flex:1 1 auto}}
+.chip.on{background:var(--blue);color:#fff}
+.card{border-radius:14px;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-3px);box-shadow:5px 5px 0 var(--or)}
+.card img{transition:transform .4s}.card:hover img{transform:scale(1.05)}
+.tag{background:var(--or)}
+.rt{position:absolute;right:6px;top:6px;background:var(--blue);color:#fff;font-size:12px;padding:0 8px;border-radius:10px}
+.pcard{background:var(--hero);color:#fff;border-radius:18px}
+.pcard .pn,.pcard .hint{color:rgba(255,255,255,.7)}
+.pcard .pt{font-size:22px}
+.pcard button{background:rgba(255,255,255,.14);border:0;color:#fff}
+.pcard button.pri,.pcard button.on{background:var(--or);color:#fff}
+.prow .tx small{color:var(--or)}
+.vt{position:relative;z-index:3;background:linear-gradient(rgba(0,0,0,.65),transparent)}
+#st{position:absolute;inset:0}
+.vp{position:absolute;left:0;right:0;bottom:0;z-index:4;border-radius:18px 18px 0 0;transform:translateY(105%);transition:transform .3s}
+.vp.show{transform:none}
+.stars{display:flex;gap:2px;margin-bottom:8px}
+.stars button,.stars button.on{border:0;background:none;font-size:28px;line-height:1;padding:0 4px;color:var(--line)}
+.stars button.on{color:var(--or)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+:root,:root[data-theme=dark]{--or:var(--blue)}
+.tag{background:rgba(0,0,0,.5)}
+.card:hover{box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.pcard{background:var(--bg2);color:var(--fg)}
+.pcard .pn,.pcard .hint{color:var(--fg2)}
+.pcard button{background:var(--bg);border:1px solid var(--line);color:var(--fg)}
+.pcard button.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.pcard button.on{background:var(--soft);border-color:var(--blue);color:var(--blue)}
 </style>
 </head>
 <body>
 <header>
-  <span class="logo">Pose 图库</span>
+  <span class="logo"><i id="lgm"></i>何岩pose网</span>
   <div id="tabs"><button data-v="gal">图库</button><button data-v="pose">Pose 库</button></div>
-  <button class="ib" id="th" title="白天/黑夜" aria-label="切换主题">◐</button>
-  <button class="ib" id="st2" title="设置" aria-label="设置">⚙</button>
+  <button class="ib" id="th" title="白天/黑夜" aria-label="切换主题"><span>◐</span></button>
+  <button class="ib" id="st2" title="设置" aria-label="设置"><span>⚙</span></button>
   <button class="ib" id="up" title="上传图片" aria-label="上传图片"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
   <input type="file" id="fi" accept="image/*" multiple hidden>
 </header>
 <main>
+  <div id="usage" hidden title="数据来自 GitHub，可能有几分钟延迟"><span class="ub"><i></i></span><span></span></div>
   <div id="warn">还没连接 GitHub：点右上角 ⚙ 填写仓库和 Token 后即可上传、分类和修改。</div>
-  <div id="chips"></div>
+  <div id="bar"><div id="chips"></div><div id="ctl"><button id="srt"></button><button id="rb" class="or"></button></div></div>
   <div id="gal"></div>
   <div id="pose" hidden></div>
 </main>
 
 <div id="v" hidden>
-  <div class="vt"><span id="vc"></span><span class="sp"></span><button id="zo" aria-label="缩小">−</button><button id="zi" aria-label="放大">+</button><button id="vx" aria-label="关闭">✕</button></div>
+  <div class="vt"><span id="vc"></span><span class="sp"></span><button id="vi2" aria-label="分类与描述">ⓘ</button><button id="zo" aria-label="缩小">−</button><button id="zi" aria-label="放大">+</button><button id="vx" aria-label="关闭">✕</button></div>
   <div id="st"><img id="vi" alt=""><button class="nv l" id="vl" aria-label="上一张">‹</button><button class="nv r" id="vr" aria-label="下一张">›</button></div>
-  <div class="vp">
+  <div class="vp" id="vp"><div class="stars" id="vst"></div>
     <div class="row"><select id="vcat" aria-label="分类"></select><button id="vrec">识别 pose</button><button id="vdel" class="dg">删除</button></div>
     <textarea id="vpose" rows="2" placeholder="pose 描述（可手动修改）"></textarea>
   </div>
@@ -98,13 +161,13 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>(
 const ls={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
 let cfg=JSON.parse(ls.get('cfg')||'{}');
 if(!cfg.owner&&location.hostname.endsWith('.github.io')){cfg.owner=location.hostname.split('.')[0];cfg.repo=location.pathname.split('/')[1]||location.hostname}
-const S={data:{cats:['常用半装','全装','特殊动作'],items:[]},sha:null,cat:'全部',v:'gal'},local={},P={i:0,rand:false,on:false};
+const S={data:{cats:['常用半装','全装','特殊动作'],items:[]},sha:null,cat:'全部',v:'gal',sort:ls.get('sort')||'t'},local={},P={i:0,rand:false,on:false};
 const br=()=>cfg.branch||'main';
 
 /* theme */
 function theme(t){document.documentElement.dataset.theme=t;ls.set('th',t)}
 theme(ls.get('th')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
-$('#th').onclick=()=>theme(document.documentElement.dataset.theme=='dark'?'light':'dark');
+$('#th').onclick=e=>{e.currentTarget.classList.toggle('sp');theme(document.documentElement.dataset.theme=='dark'?'light':'dark')};
 
 /* toast */
 let tt;function toast(s,ms=2500){const e=$('#tt');e.textContent=s;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,ms)}
@@ -133,7 +196,14 @@ async function load(){
       else if(r.status!=404)toast('读取失败 '+r.status,4000)
     }else{const r=await fetch('data.json?t='+Date.now());if(r.ok)S.data=await r.json()}
   }catch{}
-  render()
+  render();usage()
+}
+async function usage(){
+  const e=$('#usage');if(!cfg.owner||!cfg.repo){e.hidden=true;return}
+  try{const r=await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`,{headers:cfg.token?{Authorization:'Bearer '+cfg.token}:{}});if(!r.ok)throw 0;
+    const mb=(await r.json()).size/1024;
+    e.lastElementChild.textContent=`${S.data.items.length} 张图 · 仓库已用 ${mb<1024?mb.toFixed(1)+' MB':(mb/1024).toFixed(2)+' GB'} / 建议上限 1 GB`;
+    e.querySelector('i').style.width=Math.max(1,Math.min(100,mb/10.24))+'%';e.hidden=false}catch{e.hidden=true}
 }
 const U=(it,t)=>local[it.id]?.[t]||(cfg.owner?`https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${br()}/`:'')+(t=='thumb'?'thumbs/':'images/')+it.id+'.jpg';
 
@@ -154,43 +224,56 @@ async function upload(files){
       const it={id,cat:S.cat=='全部'?'未分类':S.cat,pose:'',w:full.w,h:full.h,ts:Date.now()};
       S.data.items.unshift(it);render();
       await put(`images/${id}.jpg`,fb);await put(`thumbs/${id}.jpg`,tb);await save();
-      if(cfg.akey)await recog(it,true)
+      if(cfg.mkey)await recog(it,true)
     }catch(e){toast('上传失败：'+e.message,4000)}
   }
-  toast('上传完成',2000)
+  toast('上传完成',2000);setTimeout(usage,5000)
 }
 
 /* pose recognition (Claude API) */
-async function recog(it,quiet){
-  if(!cfg.akey){toast('请先在设置里填 Claude API Key');return}
+async function recog(it,quiet,batch){
+  if(!cfg.mkey){toast('请先在设置里填魔搭 Token');return false}
   if(!quiet)toast('识别 pose 中…',999999);
   try{
     let d=local[it.id]?.b64;
     if(!d)d=await b64b(await (await fetch(U(it,'img'))).blob());
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':cfg.akey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:d}},{type:'text',text:'这是一张人像摄影 pose 参考图。请用中文，用一到两句简短口语化的话描述这个 pose，方便语音播报：说明站/坐/躺、身体朝向、手的位置、腿的位置、头部和视线。只输出描述本身，不要任何前缀。'}]}]})});
-    const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.status);
-    it.pose=j.content.map(c=>c.text||'').join('').trim();
-    await save();render();if(V.on)showV();toast('已识别 pose',1500)
-  }catch(e){toast('识别失败：'+e.message,4000)}
+    const r=await fetch('https://api-inference.modelscope.cn/v1/chat/completions',{method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+cfg.mkey},body:JSON.stringify({model:cfg.model||'Qwen/Qwen3-VL-235B-A22B-Instruct',max_tokens:300,stream:false,messages:[{role:'user',content:[{type:'image_url',image_url:{url:'data:image/jpeg;base64,'+d}},{type:'text',text:'这是一张人像摄影 pose 参考图。请用中文，用一到两句简短口语化的话描述这个 pose，方便语音播报：说明站/坐/躺、身体朝向、手的位置、腿的位置、头部和视线。只输出描述本身，不要任何前缀。'}]}]})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error?.message||j.message||r.status);
+    it.pose=(j.choices?.[0]?.message?.content||'').trim();if(!it.pose)throw new Error('模型没有返回内容');
+    if(!batch){await save();toast('已识别 pose',1500)}
+    render();if(V.on)showV();return true
+  }catch(e){toast('识别失败：'+(e instanceof TypeError?'网络或跨域被拦截':e.message),5000);return false}
+}
+let busy=false;
+async function recogAll(){
+  if(!cfg.mkey){toast('请先在设置里填魔搭 Token');openSet();return}
+  const l=S.data.items.filter(i=>!i.pose);if(busy||!l.length)return;
+  busy=true;let ok=0;
+  for(const it of l){toast(`识别中 ${ok+1}/${l.length}…`,999999);if(await recog(it,true,true))ok++;else break}
+  busy=false;await save();if(ok==l.length)toast(`完成，新识别 ${ok} 张`,3000)
 }
 
 /* render */
-const items=()=>S.cat=='全部'?S.data.items:S.data.items.filter(i=>i.cat==S.cat);
+const items=()=>{const l=S.cat=='全部'?S.data.items:S.data.items.filter(i=>i.cat==S.cat);return S.sort=='r'?[...l].sort((a,b)=>(b.r||0)-(a.r||0)||b.ts-a.ts):l};
 function render(){
   const cs=['全部',...S.data.cats,...(S.data.items.some(x=>x.cat=='未分类')?['未分类']:[])];
   $('#chips').innerHTML=cs.map(c=>`<button class="chip${c==S.cat?' on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('')+'<button class="chip" id="mc">管理分类</button>';
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v==S.v));
   $('#gal').hidden=S.v!='gal';$('#pose').hidden=S.v!='pose';$('#warn').hidden=!!cfg.token;
+  const un=S.data.items.filter(i=>!i.pose).length,n=S.data.items.length;
+  $('#srt').textContent='排序：'+(S.sort=='r'?'评分':'最新');
+  $('#rb').textContent=un?`识别未识别 ${un}`:'全部已识别';$('#rb').disabled=!un;
+  
   S.v=='gal'?renderGal():renderPose()
 }
 function renderGal(){
   const l=items();
-  $('#gal').innerHTML=l.length?l.map(i=>`<div class="card" data-id="${i.id}"><img loading="lazy" src="${U(i,'thumb')}" width="${i.w}" height="${i.h}" alt=""><span class="tag">${esc(i.cat)}</span></div>`).join(''):'<div class="empty">这里还没有图片，点右上角 ↑ 上传。</div>'
+  $('#gal').innerHTML=l.length?l.map(i=>`<div class="card" data-id="${i.id}"><img loading="lazy" src="${U(i,'thumb')}" width="${i.w}" height="${i.h}" alt=""><span class="tag">${esc(i.cat)}</span>${i.r?`<span class="rt">★${i.r}</span>`:''}</div>`).join(''):'<div class="empty">这里还没有图片，点右上角 ↑ 上传。</div>'
 }
 const plist=()=>items().filter(i=>i.pose);
 function renderPose(){
   const l=plist();if(P.i>=l.length)P.i=0;const c=l[P.i];
-  $('#pose').innerHTML=`<div class="pcard">${c?`<img src="${U(c,'thumb')}" data-id="${c.id}" alt=""><div class="pn">第 ${P.i+1}/${l.length} 条 · ${esc(c.cat)}</div><div class="pt">${esc(c.pose)}</div>`:'<div class="empty">这个分类下还没有 pose。填入 Claude API Key 后，上传图片会自动识别。</div>'}
+  $('#pose').innerHTML=`<div class="pcard">${c?`<img src="${U(c,'thumb')}" data-id="${c.id}" alt=""><div class="pn">第 ${P.i+1}/${l.length} 条 · ${esc(c.cat)}</div><div class="pt">${esc(c.pose)}</div>`:'<div class="empty">这个分类下还没有 pose。填入魔搭 Token 后，上传图片会自动识别。</div>'}
   <div class="pbtn"><button id="pp">上一条</button><button id="ps" class="pri">播报</button><button id="pn">下一条</button></div>
   <div class="pbtn"><button id="pr" class="${P.rand?'on':''}">随机：${P.rand?'开':'关'}</button><button id="pv" class="${P.on?'on':''}">语音控制：${P.on?'开':'关'}</button></div>
   <p class="hint">开启语音控制后，说“下一个”“上一个”“重复”“随机”“停止”。</p></div>
@@ -240,16 +323,16 @@ function showV(){
   $('#vc').textContent=`${V.i+1} / ${V.list.length}`;
   $('#vcat').innerHTML=[...S.data.cats,'未分类'].map(c=>`<option${c==it.cat?' selected':''}>${esc(c)}</option>`).join('');
   $('#vpose').value=it.pose||'';
-  $('#vrec').hidden=!cfg.akey
+  $('#vrec').hidden=!cfg.mkey;stars(it)
 }
-function closeV(){V.on=false;$('#v').hidden=true;render()}
+function closeV(){V.on=false;$('#v').hidden=true;$('#vp').classList.remove('show');render()}
 const go=d=>{if(V.list.length>1){V.i=(V.i+d+V.list.length)%V.list.length;showV()}};
 $('#vx').onclick=closeV;$('#vl').onclick=()=>go(-1);$('#vr').onclick=()=>go(1);
 $('#zi').onclick=()=>zoom(V.s*1.4);$('#zo').onclick=()=>zoom(V.s/1.4);
 document.addEventListener('keydown',e=>{if(!V.on||/TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key=='ArrowLeft')go(-1);else if(e.key=='ArrowRight')go(1);else if(e.key=='Escape')closeV()});
 st.addEventListener('wheel',e=>{e.preventDefault();zoom(V.s*(e.deltaY<0?1.15:.87))},{passive:false});
 const dist=()=>{const a=[...ptr.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)};
-st.onpointerdown=e=>{if(e.target.closest('.nv'))return;st.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptr.size==2){pd=dist();ps=V.s;sw=null}else sw={x:e.clientX,y:e.clientY,ox:V.x,oy:V.y}};
+st.onpointerdown=e=>{if(e.target.closest('.nv'))return;$('#vp').classList.remove('show');st.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptr.size==2){pd=dist();ps=V.s;sw=null}else sw={x:e.clientX,y:e.clientY,ox:V.x,oy:V.y}};
 st.onpointermove=e=>{if(!ptr.has(e.pointerId))return;ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptr.size==2){zoom(ps*dist()/pd)}else if(sw&&V.s>1){V.x=sw.ox+e.clientX-sw.x;V.y=sw.oy+e.clientY-sw.y;tf()}};
 st.onpointerup=e=>{
   ptr.delete(e.pointerId);if(!sw||ptr.size)return;
@@ -266,7 +349,7 @@ $('#vdel').onclick=async()=>{
   const it=V.list[V.i];if(!confirm('确定删除这张图片？'))return;
   S.data.items=S.data.items.filter(x=>x!=it);V.list.splice(V.i,1);if(V.i>=V.list.length)V.i=0;
   render();if(V.list.length)showV();else closeV();
-  toast('删除中…',999999);await del(`images/${it.id}.jpg`);await del(`thumbs/${it.id}.jpg`);await save();toast('已删除',1500)
+  toast('删除中…',999999);await del(`images/${it.id}.jpg`);await del(`thumbs/${it.id}.jpg`);await save();toast('已删除',1500);setTimeout(usage,5000)
 };
 
 /* modal: settings & categories */
@@ -280,12 +363,13 @@ function openSet(){
   <label>仓库名</label><input id="s2" value="${esc(cfg.repo||'')}" autocapitalize="off">
   <label>分支</label><input id="s3" value="${esc(cfg.branch||'main')}" autocapitalize="off">
   <label>GitHub Token（Contents 读写权限，只保存在这台设备的浏览器里）</label><input id="s4" type="password" value="${esc(cfg.token||'')}">
-  <label>Claude API Key（可选，用于自动识别 pose）</label><input id="s5" type="password" value="${esc(cfg.akey||'')}">
+  <label>魔搭 ModelScope Token（用于自动识别 pose）</label><input id="s5" type="password" value="${esc(cfg.mkey||'')}">
+  <label>识别模型</label><input id="s6" value="${esc(cfg.model||'Qwen/Qwen3-VL-235B-A22B-Instruct')}" autocapitalize="off">
   <div class="row" style="margin-top:14px"><button data-a="ok">取消</button><button class="pri" id="sv">保存并刷新</button></div>`)
 }
 $('#mb').onclick=e=>{
   const t=e.target.closest('button');if(!t)return;
-  if(t.id=='sv'){cfg={owner:$('#s1').value.trim(),repo:$('#s2').value.trim(),branch:$('#s3').value.trim()||'main',token:$('#s4').value.trim(),akey:$('#s5').value.trim()};ls.set('cfg',JSON.stringify(cfg));closeM();load();return}
+  if(t.id=='sv'){cfg={owner:$('#s1').value.trim(),repo:$('#s2').value.trim(),branch:$('#s3').value.trim()||'main',token:$('#s4').value.trim(),mkey:$('#s5').value.trim(),model:$('#s6').value.trim()||'Qwen/Qwen3-VL-235B-A22B-Instruct'};ls.set('cfg',JSON.stringify(cfg));closeM();load();return}
   const a=t.dataset.a,i=+t.dataset.i;
   if(a=='ok')closeM();
   else if(a=='ren'){const n=prompt('新的分类名',S.data.cats[i]);if(n&&n.trim()){const o=S.data.cats[i];S.data.cats[i]=n.trim();S.data.items.forEach(x=>{if(x.cat==o)x.cat=n.trim()});if(S.cat==o)S.cat=n.trim();save();render();manage()}}
@@ -297,6 +381,16 @@ function manage(){
   <div class="row" style="margin-top:10px"><input id="nc" placeholder="新分类名"><button class="pri" id="ac">添加</button></div>
   <button data-a="ok" style="width:100%">完成</button>`)
 }
+/* rating, sort, batch, animated figure */
+function stars(it){$('#vst').innerHTML=[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${(it.r||0)>=n?'on':''}" aria-label="${n} 星">★</button>`).join('')}
+$('#vst').onclick=e=>{const b=e.target.closest('button');if(!b)return;const it=V.list[V.i],n=+b.dataset.n;it.r=it.r==n?0:n;stars(it);save()};
+$('#vi2').onclick=()=>$('#vp').classList.toggle('show');
+$('#srt').onclick=()=>{S.sort=S.sort=='r'?'t':'r';ls.set('sort',S.sort);render()};
+$('#rb').onclick=recogAll;
+const FA=['M24 17L16 22L10 28M24 17L32 22L38 28','M24 17L16 10L14 3M24 17L32 10L34 3','M24 17L14 22L20 28M24 17L33 18L40 10'],FL=['M24 28L21 36L20 44M24 28L27 36L28 44','M24 28L17 36L12 43M24 28L31 36L36 43','M24 28L20 36L21 44M24 28L30 34L34 42'];
+const fig=(c,h)=>{const an=a=>`<animate attributeName="d" dur="6s" repeatCount="indefinite" values="${a[0]};${a[1]};${a[2]};${a[0]}" keyTimes="0;.33;.66;1" calcMode="spline" keySplines=".5 0 .5 1;.5 0 .5 1;.5 0 .5 1"/>`;
+  return `<svg viewBox="0 0 48 48" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="9" r="4.5" fill="${h}" stroke="none"><animate attributeName="cy" dur="6s" repeatCount="indefinite" values="9;7;9;9" keyTimes="0;.33;.66;1"/></circle><path d="M24 14V28"/><path d="${FA[0]}">${an(FA)}</path><path d="${FL[0]}">${an(FL)}</path></svg>`};
+$('#lgm').innerHTML=fig('#fff','#fff');
 load();
 </script>
 </body>
