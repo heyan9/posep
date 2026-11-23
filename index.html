@@ -150,6 +150,8 @@ body.speaking .eq{display:inline-flex}
 .eq b{width:3px;background:var(--blue);border-radius:2px;animation:eq .9s ease-in-out infinite}
 .eq b:nth-child(2){animation-delay:.2s}.eq b:nth-child(3){animation-delay:.4s}
 @media(prefers-reduced-motion:reduce){.ch,.c{opacity:1!important}}
+.pbar{height:3px;background:rgba(0,102,255,.15);border-radius:2px;margin-top:10px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--blue);transform-origin:left;animation:fill linear forwards}
+@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 </style>
 </head>
 <body>
@@ -159,7 +161,7 @@ body.speaking .eq{display:inline-flex}
   <button class="ib" id="th" title="白天/黑夜" aria-label="切换主题"><span>◐</span></button>
   <button class="ib" id="mic" title="语音控制" aria-label="语音控制"><span>🎤</span></button>
   <button class="ib" id="st2" title="管理员" aria-label="管理员"><span>⚙</span></button>
-  <button class="ib" id="up" title="上传图片" aria-label="上传图片"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
+  <button class="ib" id="up" title="上传图片（也可以直接 Ctrl+V 粘贴）" aria-label="上传图片"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
   <input type="file" id="fi" accept="image/*" multiple hidden>
 </header>
 <main>
@@ -185,7 +187,7 @@ body.speaking .eq{display:inline-flex}
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ls={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
 let cfg=JSON.parse(ls.get('cfg')||'{}');
-const API='https://pose-tts.icemare7.workers.dev';
+const OLD=/github\.io$/.test(location.hostname)||!location.hostname,API=OLD?'https://pose-tts.icemare7.workers.dev':'';
 const S={data:{cats:['常用半装','全装','特殊动作'],items:[]},sha:null,cat:'全部',v:'gal',sort:ls.get('sort')||'r'},local={},P={i:0,rand:false,on:false};
 
 /* theme */
@@ -222,7 +224,8 @@ function usage(){
   e.lastElementChild.textContent=`${S.data.items.length} 张图 · 仓库已用 ${mb<1024?mb.toFixed(1)+' MB':(mb/1024).toFixed(2)+' GB'} / 建议上限 1 GB`;
   e.querySelector('i').style.width=Math.max(1,Math.min(100,mb/10.24))+'%';e.hidden=false
 }
-const U=(it,t)=>local[it.id]?.[t]||(S.repo?`https://raw.githubusercontent.com/${S.repo}/${S.br}/`:'')+(t=='thumb'?'thumbs/':'images/')+it.id+'.jpg';
+const fileBase=()=>OLD?`https://raw.githubusercontent.com/${S.repo}/${S.br}/`:'/f/';
+const U=(it,t)=>local[it.id]?.[t]||(S.repo?fileBase():'')+(t=='thumb'?'thumbs/':'images/')+it.id+'.jpg';
 
 /* compress */
 function comp(f,max,qy){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>res({b,w:c.width,h:c.height}),'image/jpeg',qy)};im.onerror=()=>rej(new Error('无法读取图片'));im.src=u})}
@@ -295,20 +298,22 @@ function renderPose(){
   const l=plist();if(P.i>=l.length)P.i=0;const c=l[P.i];
   $('#pose').innerHTML=`<div class="pcard">${c?`<img src="${U(c,'thumb')}" data-id="${c.id}" alt=""><div class="pn">第 ${P.i+1}/${l.length} 条 · ${esc(c.cat)}<span class="eq"><b></b><b></b><b></b></span></div><div class="pt">${ptxt(c)}</div>`:'<div class="empty">这个分类下还没有 pose。</div>'}
   <div class="pbtn"><button id="pp">上一条</button><button id="ps" class="pri">播报</button><button id="pn">下一条</button></div>
+  <div class="pbtn"><button id="pa" class="${P.auto?'on':'pri'}">${P.auto?'⏸ 暂停自动播放':'▶ 自动播放'}</button><select id="piv" aria-label="间隔">${[10,15,20,30,45,60].map(n=>`<option value="${n}"${n==(cfg.iv||20)?' selected':''}>每 ${n} 秒</option>`).join('')}</select></div>
+  ${P.auto?`<div class="pbar"><i style="animation-duration:${cfg.iv||20}s"></i></div>`:''}
   <div class="pbtn"><button id="pr" class="${P.rand?'on':''}">随机：${P.rand?'开':'关'}</button><button id="pv" class="${P.on?'on':''}">语音控制：${P.on?'开':'关'}</button></div>
   <div class="pbtn"><select id="pvo" aria-label="声音">${vlist().map(([v,n])=>`<option value="${v}"${v==voice()?' selected':''}>${n}</option>`).join('')}</select><select id="psp" aria-label="语速">${SPEEDS.map(([v,n])=>`<option value="${v}"${v==(cfg.sp||1)?' selected':''}>语速：${n}</option>`).join('')}</select></div>
   <p class="hint">开启语音控制后，说“下一个”“上一个”“重复”“随机”“停止”。播报时会暂停听音，播完自动继续。</p></div>
   ${items().map(i=>`<div class="prow"><img src="${U(i,'thumb')}" data-id="${i.id}" alt=""><div class="tx${c&&c.id==i.id?' cur':''}" data-p="${i.id}"><small>${esc(i.cat)}</small><br>${i.pose?esc(i.pose):'<span style="color:var(--fg2)">暂无 pose 描述</span>'}</div></div>`).join('')}`
 }
 $('#chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id=='mc')return manage();S.cat=b.dataset.c;P.i=0;S.fx=1;render()};
-$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){S.v=b.dataset.v;S.fx=1;render()}};
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){S.v=b.dataset.v;S.fx=1;if(S.v!='pose'&&P.auto)auto(false);render()}};
 $('#gal').onclick=e=>{const c=e.target.closest('.card');if(c)openV(c.dataset.id)};
 $('#pose').onclick=e=>{
   const t=e.target,im=t.closest('img');if(im)return openV(im.dataset.id);
   const p=t.closest('[data-p]');if(p){const k=plist().findIndex(x=>x.id==p.dataset.p);if(k>=0){P.i=k;renderPose();speak()}return}
   const b=t.closest('button');if(!b)return;
   if(b.id=='pp')nav(-1,1);else if(b.id=='pn')nav(1);else if(b.id=='ps')speak();
-  else if(b.id=='pr'){P.rand=!P.rand;renderPose()}else if(b.id=='pv')listen(!P.on)
+  else if(b.id=='pr'){P.rand=!P.rand;renderPose()}else if(b.id=='pv')listen(!P.on);else if(b.id=='pa')auto(!P.auto)
 };
 
 /* voice */
@@ -326,7 +331,7 @@ function sys(t,done){
   speechSynthesis.cancel();
   setTimeout(()=>{const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=cfg.sp||1;const z=speechSynthesis.getVoices().find(x=>/zh[-_]CN/i.test(x.lang));if(z)u.voice=z;u.onend=u.onerror=done;speechSynthesis.resume();speechSynthesis.speak(u)},80)
 }
-const aurl=(it,v)=>`https://raw.githubusercontent.com/${S.repo}/${S.br}/audio/${it.id}-${it.ah}-${v}.mp3`;
+const aurl=(it,v)=>`${fileBase()}audio/${it.id}-${it.ah}-${v}.mp3`;
 const pre=(it,v)=>!!(it&&it.ah&&v!='sys'&&(it.au||[]).includes(v));
 function warm(it){const v=voice();if(pre(it,v))fetch(aurl(it,v),{mode:'no-cors'}).catch(()=>{})}
 async function dbTTS(t,v,id,done,it){
@@ -354,13 +359,23 @@ function say(t,it){
   if(voice()=='sys')return sys(t,done);
   dbTTS(t,voice(),id,done,it).catch(e=>{if(e&&e.name=='AbortError')return;toast('豆包语音失败：'+(e.message||e)+'，已改用手机自带语音',5000);sys(t,done)})
 }
+let atm,wl;
+function armAuto(){clearInterval(atm);if(P.auto)atm=setInterval(()=>nav(1),(cfg.iv||20)*1000)}
+async function wake(on){try{if(on)wl=await navigator.wakeLock.request('screen');else{wl&&wl.release();wl=null}}catch{}}
+function auto(on){
+  clearInterval(atm);P.auto=on;
+  if(on){if(!plist().length){P.auto=false;toast('这个分类下还没有 pose');renderPose();return}speak();armAuto();wake(true);toast(`自动播放：每 ${cfg.iv||20} 秒一个`,2000)}
+  else wake(false);
+  renderPose()
+}
 $('#pose').onchange=e=>{
+  if(e.target.id=='piv'){cfg.iv=+e.target.value;saveCfg();if(P.auto){armAuto();renderPose()}return}
   if(e.target.id=='pvo'){cfg.vo=e.target.value;saveCfg();say('你好，这是新的声音')}
   else if(e.target.id=='psp'){cfg.sp=+e.target.value;saveCfg();au.playbackRate=cfg.sp}
 };
 function speak(){const l=plist(),c=l[P.i];if(!c){toast('还没有 pose：先点上方“识别未识别”，或在图片 ⓘ 里手写',4000);return}sayItem(c)}
 function speakV(){const it=V.list[V.i];it&&it.pose?sayItem(it):toast('这张还没有 pose 描述')}
-function nav(d,back){const l=plist();if(!l.length){speak();return}P.i=P.rand&&!back?Math.floor(Math.random()*l.length):(P.i+d+l.length)%l.length;renderPose();speak()}
+function nav(d,back){const l=plist();if(!l.length){speak();return}P.i=P.rand&&!back?Math.floor(Math.random()*l.length):(P.i+d+l.length)%l.length;renderPose();speak();armAuto()}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec;
 const sync=()=>{$('#mic').classList.toggle('on',P.on);renderPose()};
 function listen(on){
@@ -379,6 +394,7 @@ function cmd(t){
   const nx=/下[一个张条首页]|下张|next/i.test(t),pv=/上[一个张条首页]|上张|前一|prev/i.test(t),d=pv&&!nx?-1:nx?1:0;
   if(d)step(d);
   else if(/重复|再说|再来|播报/.test(t))V.on?speakV():speak();
+  else if(/暂停/.test(t))auto(false);else if(/继续|自动播放/.test(t))auto(true);
   else if(/随机/.test(t)){P.rand=true;toast('随机播放已开')}
   else if(/停止|结束|关闭/.test(t)){speechSynthesis.cancel();listen(false)}
 }
@@ -459,6 +475,13 @@ const FA=['M24 17L16 22L10 28M24 17L32 22L38 28','M24 17L16 10L14 3M24 17L32 10L
 const fig=(c,h)=>{const an=a=>`<animate attributeName="d" dur="6s" repeatCount="indefinite" values="${a[0]};${a[1]};${a[2]};${a[0]}" keyTimes="0;.33;.66;1" calcMode="spline" keySplines=".5 0 .5 1;.5 0 .5 1;.5 0 .5 1"/>`;
   return `<svg viewBox="0 0 48 48" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="9" r="4.5" fill="${h}" stroke="none"><animate attributeName="cy" dur="6s" repeatCount="indefinite" values="9;7;9;9" keyTimes="0;.33;.66;1"/></circle><path d="M24 14V28"/><path d="${FA[0]}">${an(FA)}</path><path d="${FL[0]}">${an(FL)}</path></svg>`};
 $('#lgm').innerHTML=fig('#fff','#fff');
+addEventListener('paste',e=>{
+  if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||''))return;
+  const fs=[...(e.clipboardData?.items||[])].map(i=>i.kind=='file'?i.getAsFile():null).filter(f=>f&&f.type.startsWith('image/'));
+  if(fs.length){e.preventDefault();toast(`收到 ${fs.length} 张粘贴的图片`,1200);upload(fs)}
+});
+addEventListener('dragover',e=>e.preventDefault());
+addEventListener('drop',e=>{const fs=[...(e.dataTransfer?.files||[])].filter(f=>f.type.startsWith('image/'));if(fs.length){e.preventDefault();upload(fs)}});
 load();
 </script>
 </body>
