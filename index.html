@@ -301,9 +301,45 @@ $('#pose').onclick=e=>{
 };
 
 /* voice */
+let au;
+function cloud(t){
+  try{au&&au.pause();au=new Audio('https://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&text='+encodeURIComponent(t.slice(0,200)));
+    au.onerror=()=>toast('在线语音失败，请改用系统浏览器（Chrome / Safari）打开',4500);
+    au.play().catch(()=>toast('请先点一下屏幕，再点播报',3000))}catch{toast('这个浏览器无法播报，请改用 Chrome / Safari',4500)}
+}
+const hasDB=()=>cfg.dkey||(cfg.did&&cfg.dtok),dbCache=new Map();
+async function doubao(t){
+  const url=cfg.proxy||'https://openspeech.bytedance.com/api/v3/tts/unidirectional';
+  const body=JSON.stringify({user:{uid:'pose-web'},req_params:{text:t,speaker:cfg.spk||'saturn_zh_female_cancan_tob',audio_params:{format:'mp3',sample_rate:24000}}});
+  const tries=[];if(cfg.dkey)tries.push({'X-Api-Key':cfg.dkey});if(cfg.did&&cfg.dtok)tries.push({'X-Api-App-Id':cfg.did,'X-Api-Access-Key':cfg.dtok});
+  let last;
+  for(const h of tries){
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-Api-Resource-Id':'seed-tts-2.0',...h},body});
+    if(!r.ok){last=new Error('HTTP '+r.status);continue}
+    const txt=await r.text(),parts=[];
+    const add=j=>{if(j.data)parts.push(j.data);else if(j.code&&j.code!=20000000)last=new Error(j.message||('错误码 '+j.code))};
+    for(const ln of txt.split('\n')){try{add(JSON.parse(ln))}catch{}}
+    if(!parts.length)for(const m of txt.matchAll(/\{[^{}]*\}/g)){try{add(JSON.parse(m[0]))}catch{}}
+    if(parts.length)return new Blob(parts.map(x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0))),{type:'audio/mpeg'})
+  }
+  throw last||new Error('没有返回音频')
+}
+async function dbTTS(t){
+  let u=dbCache.get(t);if(!u){u=URL.createObjectURL(await doubao(t));dbCache.set(t,u)}
+  au&&au.pause();au=new Audio(u);await au.play()
+}
 function say(t){
-  if(!('speechSynthesis' in window)){toast('这个浏览器不支持语音播报');return}
-  const vs=speechSynthesis.getVoices();if(vs.length&&!vs.some(x=>/zh/i.test(x.lang)))toast('设备里没有中文语音包',3000);
+  au&&au.pause();
+  if(hasDB()){
+    try{speechSynthesis.cancel()}catch{}
+    dbTTS(t).catch(e=>{toast('豆包语音失败：'+(e instanceof TypeError?'网络或跨域被拦截，需要填代理地址':e.message),5000);sys(t)});
+    return
+  }
+  sys(t)
+}
+function sys(t){
+  if(!('speechSynthesis' in window))return cloud(t);
+  const vs=speechSynthesis.getVoices();if(vs.length&&!vs.some(x=>/zh/i.test(x.lang)))return cloud(t);
   speechSynthesis.cancel();
   setTimeout(()=>{const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';const z=speechSynthesis.getVoices().find(x=>/zh[-_]CN/i.test(x.lang));if(z)u.voice=z;speechSynthesis.resume();speechSynthesis.speak(u)},80)
 }
@@ -386,11 +422,16 @@ function openSet(){
   <label>GitHub Token（Contents 读写权限，只保存在这台设备的浏览器里）</label><input id="s4" type="password" value="${esc(cfg.token||'')}">
   <label>魔搭 ModelScope Token（用于自动识别 pose）</label><input id="s5" type="password" value="${esc(cfg.mkey||'')}">
   <label>识别模型</label><input id="s6" value="${esc(cfg.model||'Qwen/Qwen3-VL-235B-A22B-Instruct')}" autocapitalize="off">
+  <label>豆包语音 APP ID（可选，用于播报）</label><input id="s7" value="${esc(cfg.did||'')}" autocapitalize="off">
+  <label>豆包语音 Access Token</label><input id="s8" type="password" value="${esc(cfg.dtok||'')}">
+  <label>豆包语音 API Key（有就填，优先使用）</label><input id="s9" type="password" value="${esc(cfg.dkey||'')}">
+  <label>音色</label><input id="s10" value="${esc(cfg.spk||'saturn_zh_female_cancan_tob')}" autocapitalize="off">
+  <label>代理地址（可选，被跨域拦截时再填）</label><input id="s11" value="${esc(cfg.proxy||'')}" autocapitalize="off">
   <div class="row" style="margin-top:14px"><button data-a="ok">取消</button><button class="pri" id="sv">保存并刷新</button></div>`)
 }
 $('#mb').onclick=e=>{
   const t=e.target.closest('button');if(!t)return;
-  if(t.id=='sv'){cfg={owner:$('#s1').value.trim(),repo:$('#s2').value.trim(),branch:$('#s3').value.trim()||'main',token:$('#s4').value.trim(),mkey:$('#s5').value.trim(),model:$('#s6').value.trim()||'Qwen/Qwen3-VL-235B-A22B-Instruct'};ls.set('cfg',JSON.stringify(cfg));closeM();load();return}
+  if(t.id=='sv'){cfg={owner:$('#s1').value.trim(),repo:$('#s2').value.trim(),branch:$('#s3').value.trim()||'main',token:$('#s4').value.trim(),mkey:$('#s5').value.trim(),model:$('#s6').value.trim()||'Qwen/Qwen3-VL-235B-A22B-Instruct',did:$('#s7').value.trim(),dtok:$('#s8').value.trim(),dkey:$('#s9').value.trim(),spk:$('#s10').value.trim()||'saturn_zh_female_cancan_tob',proxy:$('#s11').value.trim()};ls.set('cfg',JSON.stringify(cfg));closeM();load();return}
   const a=t.dataset.a,i=+t.dataset.i;
   if(a=='ok')closeM();
   else if(a=='ren'){const n=prompt('新的分类名',S.data.cats[i]);if(n&&n.trim()){const o=S.data.cats[i];S.data.cats[i]=n.trim();S.data.items.forEach(x=>{if(x.cat==o)x.cat=n.trim()});if(S.cat==o)S.cat=n.trim();save();render();manage()}}
